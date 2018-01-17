@@ -1,0 +1,116 @@
+#!/usr/bin/env python3
+
+import sys
+import requests
+from time import sleep
+
+WINDOW_START = "2018-01-01"
+WINDOW_STOP = "2018-02-01"
+
+
+class User:
+
+    SLEEP_TIME = 6.5  # Unauthenticated requests are limited to 10/min
+
+    URL_TEMPLATE = "https://api.github.com/search/issues?q=author:{username}+type:pr+created:>{start}+created:<{stop}"  # NOQA: E501
+
+    def __init__(self, api_data):
+
+        self.username = api_data["login"]
+        self.avatar_url = api_data["avatar_url"]
+        self.url = api_data["html_url"]
+
+        self._pull_requests = []
+        self._pull_requests_fetched = False
+
+    def __str__(self):
+        return self.username
+
+    def _fetch_statistics(self):
+
+        print(
+            f"Fetching pull request data for {self.username}", file=sys.stderr)
+
+        sleep(self.SLEEP_TIME)
+
+        response = requests.get(self.URL_TEMPLATE.format(
+            username=self.username,
+            start=WINDOW_START,
+            stop=WINDOW_STOP
+        )).json()
+
+        for pr in response["items"]:
+            self._pull_requests.append({
+                "url": pr["html_url"],
+                "created_at": pr["created_at"]
+            })
+        self._pull_requests_fetched = True
+
+    @property
+    def pull_requests(self):
+
+        if self._pull_requests_fetched:
+            return self._pull_requests
+
+        self._fetch_statistics()
+
+        return self.pull_requests
+
+    @property
+    def pull_request_count(self):
+        return len(self.pull_requests)
+
+
+class PullRequestStatisticsCommand:
+
+    URL_USERS = "https://api.github.com/repos/py-study-group/challenges/stargazers"  # NOQA: E501
+    PAGE_TEMPLATE_PATH = "_page.html"
+    ENTRY_TEMPLATE = """
+        <div class="user">
+            <div class="username">
+                <a href="{url}"><img src="{avatar_url}" style="width: 100px" />
+                <a href="{url}">{username}</a>
+            </div>
+            <div class="statistics">
+                <div class="pull-requests">{pull_request_count}</div>
+            </div>
+        </div>
+    """
+
+    def get_users(self):
+        print(f"Fetching user list", file=sys.stderr)
+        return [User(u) for u in requests.get(self.URL_USERS).json()]
+
+    def write_template(self, users):
+
+        rankings = ""
+        for user in users:
+            rankings += self.ENTRY_TEMPLATE.format(
+                url=user.url,
+                avatar_url=user.avatar_url,
+                username=user.username,
+                pull_request_count=user.pull_request_count
+            )
+
+        with open(self.PAGE_TEMPLATE_PATH) as template:
+            with open("index.html", "w") as output:
+                output.write(template.read().replace("RANKINGS", rankings))
+
+    def main(self):
+
+        users = sorted(self.get_users(), key=lambda _: _.pull_request_count)
+
+        print(
+            "Generating output for {}".format(
+                ", ".join([u.username for u in users])
+            ),
+            file=sys.stderr
+        )
+
+        self.write_template(users)
+
+        print("Done", file=sys.stderr)
+
+
+if __name__ == "__main__":
+    PullRequestStatisticsCommand().main()
