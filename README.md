@@ -6,7 +6,7 @@ A quick &amp; dirty way to compile a list of pull requests per user
 
 It uses Github's API to first pull down a list of users who have starred the
 `py-study-group/challenges` repository, and then iterates over that list,
-asking Github for a list of pull requests exectued.
+asking Github for a list of pull requests executed.
 
 ## Does it Work?
 
