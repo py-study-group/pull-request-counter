@@ -12,7 +12,7 @@ class User:
 
     SLEEP_TIME = 6.5  # Unauthenticated requests are limited to 10/min
 
-    URL_TEMPLATE = "https://api.github.com/search/issues?q=author:{username}+type:pr+created:>{start}+created:<{stop}"  # NOQA: E501
+    URL_TEMPLATE = "https://api.github.com/search/issues?q=author:{username}+type:pr+created:{start}..{stop}&per_page=100"  # NOQA: E501
 
     def __init__(self, api_data):
 
@@ -63,17 +63,17 @@ class User:
 
 class PullRequestStatisticsCommand:
 
-    URL_USERS = "https://api.github.com/repos/py-study-group/challenges/stargazers"  # NOQA: E501
+    URL_USERS = "https://api.github.com/repos/py-study-group/challenges/stargazers?per_page=100"  # NOQA: E501
     PAGE_TEMPLATE_PATH = "_page.html"
     ENTRY_TEMPLATE = """
         <div class="user">
-            <div class="username">
-                <a href="{url}"><img src="{avatar_url}" style="width: 100px" />
-                <a href="{url}">{username}</a>
-            </div>
-            <div class="statistics">
-                <div class="pull-requests">{pull_request_count}</div>
-            </div>
+          <div class="username">
+            <a href="{url}"><img src="{avatar_url}" style="width: 100px" /></a>
+            <a href="{url}">{username}</a>
+          </div>
+          <div class="statistics">
+            <div class="pull-requests">{pull_request_count}</div>
+          </div>
         </div>
     """
 
@@ -85,6 +85,7 @@ class PullRequestStatisticsCommand:
 
         rankings = ""
         for user in users:
+            print(f"> Compiling rankings for {user}", file=sys.stderr)
             rankings += self.ENTRY_TEMPLATE.format(
                 url=user.url,
                 avatar_url=user.avatar_url,
@@ -98,8 +99,11 @@ class PullRequestStatisticsCommand:
 
     def main(self):
 
-        users = reversed(
-            sorted(self.get_users(), key=lambda _: _.pull_request_count))
+        users = sorted(
+            self.get_users(),
+            key=lambda _: _.pull_request_count,
+            reverse=True
+        )
 
         print(
             "Generating output for {}".format(
