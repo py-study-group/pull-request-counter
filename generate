@@ -98,7 +98,8 @@ class PullRequestStatisticsCommand:
 
     def main(self):
 
-        users = sorted(self.get_users(), key=lambda _: _.pull_request_count)
+        users = reversed(
+            sorted(self.get_users(), key=lambda _: _.pull_request_count))
 
         print(
             "Generating output for {}".format(
