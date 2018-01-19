@@ -15,8 +15,9 @@ Mostly.  The output is rather ugly at the moment, but I'll fix that in time.
 ## Any Caveats?
 
 Yeah, the pull-request counter currently maxes out at the number of entries
-Github returns from its API.  There's a calculated total in the API though, so
-maybe it'd be better to use this number instead.
+Github returns from its API, which isn't a problem unless someone has more
+than 100 PRs in the designated window.  Currently the user with the most PRs
+has *8*, so I'm not going to worry abou this.
 
 ## Usage
 
