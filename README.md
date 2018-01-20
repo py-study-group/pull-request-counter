@@ -6,7 +6,8 @@ A quick &amp; dirty way to compile a list of pull requests per user
 
 It uses Github's API to first pull down a list of users who have starred the
 `py-study-group/challenges` repository, and then iterates over that list,
-asking Github for a list of pull requests exectued.
+asking Github for a list of pull requests exectued.  It uses that list to
+generate HTML which it writes to `index.html`.
 
 ## Does it Work?
 
@@ -26,3 +27,4 @@ $ ./generate
 
 This creates a static file, `index.html` that contains a list of the stats
 we're looking for.
+
