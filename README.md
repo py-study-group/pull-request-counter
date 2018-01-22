@@ -18,7 +18,11 @@ Mostly.  The output is rather ugly at the moment, but I'll fix that in time.
 Yeah, the pull-request counter currently maxes out at the number of entries
 Github returns from its API, which isn't a problem unless someone has more
 than 100 PRs in the designated window.  Currently the user with the most PRs
-has *8*, so I'm not going to worry abou this.
+has *8*, so I'm not going to worry about this.
+
+However, the 100 limit also applies the list of users.  If it looks like
+we've got more than 100 users starring the `challenges` repo, we'll have to
+add pagination to this script.
 
 ## Usage
 
